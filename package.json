@@ -1,9 +1,9 @@
 {
   "name": "@local/qq-approval-notify",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
-  "description": "DSH 插件：把 DeepSeek Harness 的权限申请（含沙箱提权）经本机 NapCat 发到主人 QQ，找不到 NapCat 时回退 Windows 通知。",
+  "description": "DSH 插件：把 DeepSeek Harness 的权限申请（含沙箱提权）和 ask_user_question / 计划审核等界面提问经本机 NapCat 发到主人 QQ，找不到 NapCat 时回退 Windows 通知。",
   "exports": {
     ".": "./index.js",
     "./package.json": "./package.json"

@@ -13,6 +13,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { describeApproval } from '../lib/approval.mjs';
+import { describeQuestion } from '../lib/question.mjs';
 import { loadConfig, normalizeConfig, normalizeQQ } from '../lib/config.mjs';
 import { NapCatUnavailableError, OneBotClient } from '../lib/onebot.mjs';
 import { showWindowsNotification } from '../lib/windows-toast.mjs';
@@ -128,6 +129,33 @@ console.log('— 消息格式 —');
   equal(multiline.message, '【申请沙箱权限】允许本次操作使用 danger-full-access 权限：line1 line2 line3', '多行原因压成一行');
 }
 
+console.log('— 提问格式 —');
+{
+  const single = describeQuestion({
+    questions: [
+      { id: 'q1', header: '确认', question: '要继续吗？', options: [{ label: '继续' }, { label: '停止' }] },
+    ],
+  });
+  equal(single.text, '【需要你回答】确认：要继续吗？（单选：继续 / 停止）', '单个单选题消息');
+
+  const multi = describeQuestion({
+    questions: [
+      {
+        id: 'q1',
+        question: '选择要启用的功能',
+        multiSelect: true,
+        options: [{ label: 'QQ' }, { label: 'Toast' }],
+        detail: '这两项都会在找不到 NapCat 时回退',
+      },
+      { id: 'q2', question: '备注？' },
+    ],
+  });
+  ok(multi.text.startsWith('【需要你回答】选择要启用的功能（可多选：QQ / Toast）'), '多选题与 detail', multi.text);
+  ok(multi.text.includes('\n- 备注？'), '多个问题分行', multi.text);
+
+  equal(describeQuestion({ questions: [] }).text, '【需要你回答】DSH 正在等待你在界面上输入。', '空提问兜底');
+}
+
 console.log('— 配置解析 —');
 {
   equal(normalizeQQ(2368199809), '2368199809', '数字 QQ 转字符串');
@@ -235,6 +263,27 @@ console.log('— 插件端到端（假 NapCat） —');
   await handler(request, () => Promise.resolve('unavailable'));
   await new Promise((resolve) => setTimeout(resolve, 350));
   equal(fake.received.length, 1, '相同申请在去重窗口内不重复发送');
+
+  const questionHandler = handlers.get('user-questions/request');
+  ok(typeof questionHandler === 'function', '插件注册了 user-questions/request 监听');
+  const questionOutcome = await questionHandler({
+    questions: [
+      { id: 'q1', header: '确认', question: '要继续吗？', options: [{ label: '继续' }, { label: '停止' }] },
+    ],
+    agent: {},
+  }, () => Promise.resolve('unavailable'));
+  equal(questionOutcome, 'unavailable', '提问监听把 next() 的结果原样返回');
+
+  const deadline2 = Date.now() + 3000;
+  while (fake.received.length < 2 && Date.now() < deadline2) {
+    await new Promise((resolve) => setTimeout(resolve, 25));
+  }
+  equal(fake.received.length, 2, '提问事件触发一条 QQ 消息');
+  equal(
+    fake.received[1]?.message?.[0]?.data?.text,
+    '【需要你回答】确认：要继续吗？（单选：继续 / 停止）',
+    '提问消息格式',
+  );
   await fake.close();
 }
 
