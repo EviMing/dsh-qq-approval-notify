@@ -1,0 +1,41 @@
+{
+  "name": "@local/qq-approval-notify",
+  "version": "1.0.2",
+  "private": true,
+  "type": "module",
+  "description": "DSH 插件：把 DeepSeek Harness 的权限申请（含沙箱提权）经本机 NapCat 发到主人 QQ，找不到 NapCat 时回退 Windows 通知。",
+  "exports": {
+    ".": "./index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "lib/*.mjs",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "author": "EviMing",
+  "license": "MIT",
+  "homepage": "https://github.com/EviMing/dsh-qq-approval-notify#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EviMing/dsh-qq-approval-notify.git"
+  },
+  "bugs": {
+    "url": "https://github.com/EviMing/dsh-qq-approval-notify/issues"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "napcat",
+    "qq",
+    "approval",
+    "notification"
+  ]
+}

@@ -1,0 +1,5 @@
+- insert:
+    - id: qq-approval-notify
+      name: '@local/qq-approval-notify'
+      config:
+        configFile: ''

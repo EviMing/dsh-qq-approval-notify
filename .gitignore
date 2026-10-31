@@ -1,0 +1,4 @@
+node_modules/
+dist/
+test/live-check.log
+*.log
