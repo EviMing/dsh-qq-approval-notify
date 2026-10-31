@@ -1,4 +1,4 @@
-// Polls NapCat history for a fresh permission-request message sent by the bot.
+// Polls NapCat history for a fresh notification message sent by the bot.
 // Used only for the live end-to-end check of qq-approval-notify.
 import { appendFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -32,7 +32,7 @@ while (Date.now() < deadline) {
   try {
     for (const message of await history()) {
       const text = typeof message.raw_message === 'string' ? message.raw_message : '';
-      if (!text.includes('【申请')) continue;
+      if (!text.includes('【申请') && !text.includes('【需要你回答')) continue;
       if (typeof message.time === 'number' && message.time < startedAt - 10) continue;
       if (seen.has(message.message_id)) continue;
       seen.add(message.message_id);
@@ -47,5 +47,5 @@ while (Date.now() < deadline) {
   await new Promise((resolve) => setTimeout(resolve, 1000));
 }
 
-console.log('TIMEOUT no fresh permission-request message');
+console.log('TIMEOUT no fresh notification message');
 process.exit(3);
